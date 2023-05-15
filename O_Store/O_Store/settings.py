@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # User Apps
     "testing_app",
     "store",
+    "store_custom",
     "tags",
     # External apps
     "debug_toolbar",
@@ -86,8 +87,12 @@ WSGI_APPLICATION = "O_Store.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "o_store",
+        "USER": "incri",
+        "PASSWORD": "fastrack",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 

@@ -1,31 +1,45 @@
-import collections
-from dis import disco
-from gc import collect
-from itertools import product
-from statistics import quantiles
 from django.db import models
 
 
 class Collection(models.Model):
     title = models.CharField(max_length=255)
     featured_product = models.ForeignKey(
-        "Product", on_delete=models.SET_NULL, null=True, related_name="+"
+        "Product", on_delete=models.SET_NULL, related_name="+", null=True, blank=True
     )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ["title"]
 
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
 
+    def __str__(self):
+        return self.description
+
+    class Meta:
+        ordering = ["discount"]
+
 
 class Product(models.Model):
-    tittle = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
+    slug = models.SlugField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ["title"]
 
 
 class Customer(models.Model):
@@ -42,13 +56,19 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
-    birthdate = models.DateField(null=True)
+    phone = models.CharField(max_length=20)
+    birth_date = models.DateField(null=True)
     membership = models.CharField(
         max_length=1,
         choices=MEMBERSHIP_CHOISES,
         default=MEMBERSHIP_BRONZE,
     )
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    class Meta:
+        ordering = ["first_name", "last_name"]
 
 
 class Order(models.Model):
@@ -68,6 +88,7 @@ class Order(models.Model):
         choices=PAYMENT_STATUS_CHOISES,
         default=PAYMENT_STATUS_PENDING,
     )
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
 
 class OrderItem(models.Model):
