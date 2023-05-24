@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     "tags",
     # External apps
     "debug_toolbar",
-    'rest_framework'
+    'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
