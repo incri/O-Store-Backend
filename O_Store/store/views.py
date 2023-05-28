@@ -6,6 +6,7 @@ from .serializers import (
     CartSerializer,
     CartItemSererializer,
     AddCartItemSerializer,
+    CartUpdateSerializer,
 )
 from .filters import ProductFilter
 from .pagination import DefaultPageNumberPagination
@@ -87,11 +88,15 @@ class CartViewSet(
 
 
 class CartItemViewSet(ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
+
     def get_serializer_class(self):
+        
         if self.request.method == "POST":
             return AddCartItemSerializer
+        elif self.request.method == "PATCH":
+            return CartUpdateSerializer
         return CartItemSererializer
-        return super().get_serializer_class()
 
     def get_serializer_context(self):
         return {"cart_id": self.kwargs["cart_pk"]}
