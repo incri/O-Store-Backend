@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     # User Apps
     "testing_app",
     "store",
-    "store_custom",
+    "core",
     "tags",
     # External apps
     "debug_toolbar",
@@ -143,3 +143,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
 }
+
+AUTH_USER_MODEL = 'core.User'
