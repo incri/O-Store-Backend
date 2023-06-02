@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator
+from django.conf import settings
 
 
 class Collection(models.Model):
@@ -34,7 +35,9 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
-    collection = models.ForeignKey(Collection, on_delete=models.PROTECT, related_name= 'products')
+    collection = models.ForeignKey(
+        Collection, on_delete=models.PROTECT, related_name="products"
+    )
     promotions = models.ManyToManyField(Promotion)
 
     def __str__(self):
@@ -55,9 +58,6 @@ class Customer(models.Model):
         (MEMBERSHIP_GOLD, "Gold"),
     ]
 
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     birth_date = models.DateField(null=True)
     membership = models.CharField(
@@ -65,12 +65,19 @@ class Customer(models.Model):
         choices=MEMBERSHIP_CHOISES,
         default=MEMBERSHIP_BRONZE,
     )
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    def first_name(self):
+        return self.user.first_name
+
+    def last_name(self):
+        return self.user.last_name
 
     class Meta:
-        ordering = ["first_name", "last_name"]
+        ordering = ["user__first_name", "user__last_name"]
 
 
 class Order(models.Model):
@@ -95,7 +102,9 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name= 'orderitems')
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name="orderitems"
+    )
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
 
@@ -112,18 +121,18 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,  related_name= 'items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1)]
-    )
-
+    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
-        unique_together = [['cart', 'product']]
+        unique_together = [["cart", "product"]]
+
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name= 'reviews')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="reviews"
+    )
     name = models.CharField(max_length=255)
     description = models.TextField()
-    date = models.DateField(auto_now_add= True)
+    date = models.DateField(auto_now_add=True)
