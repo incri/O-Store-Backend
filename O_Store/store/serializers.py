@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from .models import Product, Collection, Review, Cart, CartItem, Customer
+from .models import (
+    Product,
+    Collection,
+    Review,
+    Cart,
+    CartItem,
+    Customer,
+    Order,
+    OrderItem,
+)
 from decimal import Decimal
 
 
@@ -41,14 +50,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         return Review.objects.create(product_id=product_id, **validated_data)
 
 
-class CartItemProductSerializer(serializers.ModelSerializer):
+class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ["id", "title", "price"]
 
 
+
 class CartItemSererializer(serializers.ModelSerializer):
-    product = CartItemProductSerializer()
+    product = SimpleProductSerializer()
     total_price = serializers.SerializerMethodField()
 
     def get_total_price(self, cart_item: CartItem):
@@ -108,7 +118,22 @@ class CartUpdateSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField(read_only = True)
+    user_id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Customer
-        fields = ['id', 'user_id', 'phone', 'birth_date', 'membership']
+        fields = ["id", "user_id", "phone", "birth_date", "membership"]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializer()
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'unit_price', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many = True)
+    class Meta:
+        model = Order
+        fields = ["id", "placed_at", "payment_status", "customer", 'items']

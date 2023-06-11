@@ -35,6 +35,12 @@ class OrderAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
+@admin.register(models.OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ["order", "product", "quantity", "unit_price"]
+    list_per_page = 10
+
+
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ["title", "product_count"]

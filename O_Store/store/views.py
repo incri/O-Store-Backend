@@ -6,6 +6,7 @@ from .models import (
     Cart,
     CartItem,
     Customer,
+    Order,
 )
 from .serializers import (
     ProductSerializer,
@@ -16,6 +17,7 @@ from .serializers import (
     AddCartItemSerializer,
     CartUpdateSerializer,
     CustomerSerializer,
+    OrderSerializer,
 )
 from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from .filters import ProductFilter
@@ -142,3 +144,7 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
