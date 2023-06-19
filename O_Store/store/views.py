@@ -18,6 +18,7 @@ from .serializers import (
     CartUpdateSerializer,
     CustomerSerializer,
     OrderSerializer,
+    CreateOrderSerializer,
 )
 from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from .filters import ProductFilter
@@ -128,12 +129,11 @@ class CustomerViewSet(ModelViewSet):
     serializer_class = CustomerSerializer
     permission_classes = [IsAdminUser]
 
-    @action(detail=True, permission_classes= [ViewCustomerHistoryPermission])
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
     def history(self, request, pk):
-        return Response('ok')
+        return Response("ok")
 
-
-    @action(detail=False, methods=["GET", "PUT"], permission_classes = [IsAuthenticated])
+    @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAuthenticated])
     def me(self, request):
         (customer, created) = Customer.objects.get_or_create(user_id=request.user.id)
         if request.method == "GET":
@@ -145,15 +145,25 @@ class CustomerViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data)
 
+
 class OrderViewSet(ModelViewSet):
-    serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateOrderSerializer
+        return OrderSerializer
+
+    def get_serializer_context(self):
+        return {"user_id": self.request.user.id}
 
     def get_queryset(self):
         user = self.request.user
 
         if user.is_staff:
             return Order.objects.all()
-        
-        (customer_id, created) = Customer.objects.only('id').get_or_create(user_id = user.id)
-        return Order.object.filter(customer_id = customer_id)
+
+        (customer_id, created) = Customer.objects.only("id").get_or_create(
+            user_id=user.id
+        )
+        return Order.object.filter(customer_id=customer_id)

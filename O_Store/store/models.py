@@ -78,9 +78,7 @@ class Customer(models.Model):
 
     class Meta:
         ordering = ["user__first_name", "user__last_name"]
-        permissions = [
-            ('view_history', 'Can view history')
-        ]
+        permissions = [("view_history", "Can view history")]
 
 
 class Order(models.Model):
@@ -107,7 +105,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='items')
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name="items")
     product = models.ForeignKey(
         Product, on_delete=models.PROTECT, related_name="orderitems"
     )

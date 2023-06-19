@@ -10,6 +10,7 @@ from .models import (
     OrderItem,
 )
 from decimal import Decimal
+from django.db import transaction
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -54,7 +55,6 @@ class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ["id", "title", "price"]
-
 
 
 class CartItemSererializer(serializers.ModelSerializer):
@@ -127,13 +127,44 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'unit_price', 'quantity']
+        fields = ["id", "product", "unit_price", "quantity"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many = True)
+    items = OrderItemSerializer(many=True)
+
     class Meta:
         model = Order
-        fields = ["id", "placed_at", "payment_status", "customer", 'items']
+        fields = ["id", "placed_at", "payment_status", "customer", "items"]
+
+
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.UUIDField()
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            cart_id = self.validated_data["cart_id"]
+            (customer, created) = Customer.objects.get_or_create(
+                user_id=self.context["user_id"]
+            )
+            order = Order.objects.create(customer=customer)
+
+            cart_items = CartItem.objects.select_related("product").filter(
+                cart_id=cart_id
+            )
+
+            order_items = [
+                OrderItem(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    unit_price=item.product.price,
+                )
+                for item in cart_items
+            ]
+
+            OrderItem.objects.bulk_create(order_items)
+            Cart.objects.filter(pk=cart_id).delete()
