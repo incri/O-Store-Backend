@@ -19,6 +19,7 @@ from .serializers import (
     CustomerSerializer,
     OrderSerializer,
     CreateOrderSerializer,
+    UpdateOrderSerializer,
 )
 from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from .filters import ProductFilter
@@ -166,6 +167,8 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == "POST":
             return CreateOrderSerializer
+        elif self.request.method == "PATCH":
+            return UpdateOrderSerializer
         return OrderSerializer
 
     def get_queryset(self):
