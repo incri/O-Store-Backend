@@ -39,7 +39,6 @@ from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
     DestroyModelMixin,
-    UpdateModelMixin,
 )
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
