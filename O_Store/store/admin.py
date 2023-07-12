@@ -5,12 +5,23 @@ from django.utils.html import format_html, urlencode
 from django.urls import reverse
 
 
+class ProductImageInline(admin.TabularInline):
+    model = models.ProductImage
+    readonly_fields = ["thumbnail"]
+
+    def thumbnail(self, instance):
+        if instance.image.name != "":
+            return format_html(f"<img class='thumbnail' src='{instance.image.url}'/>")
+        return ''
+
+
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ["title", "price", "inventory_status", "collection_title"]
     list_editable = ["price"]
     list_per_page = 10
     list_select_related = ["collection"]
+    inlines = [ProductImageInline]
 
     def collection_title(self, product):
         return product.collection.title
@@ -20,6 +31,11 @@ class ProductAdmin(admin.ModelAdmin):
             return "Low"
         else:
             return "Ok"
+        
+    class Media:
+        css = {
+            'all':['store/styles.css']
+        }
 
 
 @admin.register(models.Customer)
