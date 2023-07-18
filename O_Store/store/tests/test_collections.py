@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from store.models import Collection
 from model_bakery import baker
 
@@ -64,3 +63,4 @@ class TestRetrieveCollection:
         response = api_client.get(f"/store/collections/{collection.id}/")
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {"id": collection.id, "title": collection.title, 'products_count':0}
+
