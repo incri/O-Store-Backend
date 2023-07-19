@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_filters",
     "djoser",
     "corsheaders",
+    "silk",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += [
+        "silk.middleware.SilkyMiddleware",
+    ]
 
 ROOT_URLCONF = "O_Store.urls"
 
@@ -180,7 +186,6 @@ CELERY_BEAT_SCHEDULE = {
     "notify_customer": {
         "task": "testing_app.tasks.notify_customer",
         "schedule": 5,
-        'args':['Hello World']
+        "args": ["Hello World"],
     }
 }
- 
