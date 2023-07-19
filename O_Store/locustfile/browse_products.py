@@ -15,7 +15,7 @@ class WebsiteUser(HttpUser):
 
     @task(4)
     def view_product(self):
-        product_id = randint(1, 3)
+        product_id = randint(1, 2)
         self.client.get(f"/store/products/{product_id}/", name="store/products/:id")
 
     @task(1)
