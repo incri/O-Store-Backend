@@ -1,14 +1,16 @@
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 import requests
 from django.http import HttpResponse
 from django.core.cache import cache
+from rest_framework.views import APIView
 
 
+
+
+@cache_page(5 * 60)
 def say_something(request):
-    key = "httpbin_result"
+    response = requests.get("https://httpbin.org/delay/2")
+    data = response.json()
 
-    if cache.get(key) is None:
-        response = requests.get("https://httpbin.org/delay/2")
-        data = response.json()
-        cache.set(key, data)
-    return HttpResponse(cache.get(key))
+    return HttpResponse(data)
